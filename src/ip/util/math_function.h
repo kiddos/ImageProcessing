@@ -22,9 +22,9 @@ inline constexpr T max(T t, U u) { return t > u ? t : u; }
 
 template <typename T, typename U>
 inline T clamp(U u) {
-  T maxval = static_cast<T>(std::numeric_limits<U>::max());
-  T minval = static_cast<T>(std::numeric_limits<U>::min());
-  return min(max(u, minval), maxval);
+  U maxval = static_cast<U>(std::numeric_limits<T>::max());
+  U minval = static_cast<U>(std::numeric_limits<T>::min());
+  return min(maxval, max(minval, u));
 }
 
 template <typename T, typename U, typename V>
