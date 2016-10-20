@@ -6,63 +6,18 @@
 #include <iomanip>
 #include <sys/time.h>
 
+#include "common.h"
 #include "ip/util/math_function.h"
 
 using std::cout;
 using boost::unit_test::test_suite;
-
-namespace ip {
-namespace test {
-
-class Timer {
- public:
-  Timer() = default;
-
-  void start() {
-    gettimeofday(&start_, nullptr);
-  }
-  void stop() {
-    gettimeofday(&end_, nullptr);
-  }
-  void output_time_passed() {
-    std::cout << "time elapsed: "
-        << end_.tv_sec - start_.tv_sec + 1e-6 * (end_.tv_usec - start_.tv_usec)
-        << " sec\n";
-  }
-
- private:
-  struct timeval start_, end_;
-};
-
-int get_random_size(int base_size) {
-  std::mt19937 generator(
-      std::chrono::system_clock::now().time_since_epoch().count());
-  std::uniform_int_distribution<int> distribution(base_size / 2, base_size);
-  return base_size + distribution(generator);
-}
-
-template <typename DType>
-void set_data_value(DType* data, const int size, DType val) {
-  for (int i = 0 ; i < size ; ++i) {
-    data[i] = val;
-  }
-}
-
-template <typename DType>
-void print_2d_data(DType* data, const int w, const int h) {
-  for (int i = 0 ; i < h ; ++i) {
-    for (int j = 0 ; j < w ; ++j) {
-      cout << std::setw(4) << data[j * h + i] << " ";
-    }
-    cout << '\n';
-  }
-}
+using ip::test::Timer;
 
 void TestConvolution2d(const int scale, const int padding, const int stride) {
-  const int a_width = get_random_size(scale);
-  const int a_height = get_random_size(scale);
-  const int b_width = get_random_size(ip::math::min(scale / 2, 4));
-  const int b_height = get_random_size(ip::math::min(scale / 2, 4));
+  const int a_width = ip::test::get_random_size(scale);
+  const int a_height = ip::test::get_random_size(scale);
+  const int b_width = ip::test::get_random_size(ip::math::min(scale / 2, 4));
+  const int b_height = ip::test::get_random_size(ip::math::min(scale / 2, 4));
   cout << "A | width: " << a_width << " | height: " << a_height << '\n';
   cout << "B | width: " << b_width << " | height: " << b_height << '\n';
   cout << "[Test Convolution...]: (" <<  a_width << "," << a_height;
@@ -74,8 +29,8 @@ void TestConvolution2d(const int scale, const int padding, const int stride) {
   const int output_width = (a_width - b_width + 2 * padding) / stride + 1;
   const int output_height = (a_height - b_height + 2 * padding) / stride + 1;
   float* c = new float[output_width * output_height];
-  set_data_value(a, a_width * a_height, 1.0f);
-  set_data_value(b, b_width * b_height, 1.0f);
+  ip::test::set_data_value(a, a_width * a_height, 1.0f);
+  ip::test::set_data_value(b, b_width * b_height, 1.0f);
   cout << "done.\n";
 
   Timer t;
@@ -105,7 +60,7 @@ void TestConvolution2d(const int scale, const int padding, const int stride) {
         cout << "i: " << i << " | j: " << j
             << " | expected: " << expected << " | c: "
             << c[i * output_height + j] << '\n';
-        print_2d_data(c, output_width, output_height);
+        ip::test::print_2d_data(c, output_width, output_height);
         delete[] a;
         delete[] b;
         delete[] c;
@@ -120,8 +75,6 @@ void TestConvolution2d(const int scale, const int padding, const int stride) {
   delete[] c;
 }
 
-} /* end of test namespace */
-} /* end of ip namespace */
 
 BOOST_AUTO_TEST_CASE(TestMinMaxFunction) {
   double a = 100;
@@ -142,23 +95,23 @@ BOOST_AUTO_TEST_CASE(TestClampFunction) {
   BOOST_CHECK(ip::math::clamp<int>(c) == 256);
 }
 
-BOOST_AUTO_TEST_CASE(TestConvolution2d) {
+BOOST_AUTO_TEST_CASE(TestScaleConvolution2d) {
   // small scale
-  ip::test::TestConvolution2d(4, 1, 1);
-  ip::test::TestConvolution2d(4, 1, 2);
-  ip::test::TestConvolution2d(4, 1, 3);
+  TestConvolution2d(4, 1, 1);
+  TestConvolution2d(4, 1, 2);
+  TestConvolution2d(4, 1, 3);
   // medium scale
-  ip::test::TestConvolution2d(16, 1, 1);
-  ip::test::TestConvolution2d(16, 1, 2);
-  ip::test::TestConvolution2d(16, 2, 3);
-  ip::test::TestConvolution2d(64, 1, 1);
-  ip::test::TestConvolution2d(64, 1, 2);
-  ip::test::TestConvolution2d(64, 2, 3);
-  ip::test::TestConvolution2d(256, 1, 1);
-  ip::test::TestConvolution2d(256, 1, 2);
-  ip::test::TestConvolution2d(256, 2, 3);
+  TestConvolution2d(16, 1, 1);
+  TestConvolution2d(16, 1, 2);
+  TestConvolution2d(16, 2, 3);
+  TestConvolution2d(64, 1, 1);
+  TestConvolution2d(64, 1, 2);
+  TestConvolution2d(64, 2, 3);
+  TestConvolution2d(256, 1, 1);
+  TestConvolution2d(256, 1, 2);
+  TestConvolution2d(256, 2, 3);
   // large scale
-  ip::test::TestConvolution2d(1024, 1, 1);
-  ip::test::TestConvolution2d(1024, 1, 2);
-  ip::test::TestConvolution2d(1024, 2, 3);
+  TestConvolution2d(1024, 1, 1);
+  TestConvolution2d(1024, 1, 2);
+  TestConvolution2d(1024, 2, 3);
 }
