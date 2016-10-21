@@ -18,15 +18,17 @@ DType GetValidNeighbour(const PADDING padding,
   if (x >= 0 && x < w && y >= 0 && y < h) {
     val = image_data[y * w + x];
   } else {
+    const int fixedx = std::min(std::max(0, x), w-1);
+    const int fixedy = std::min(std::max(0, y), h-1);
     switch (padding) {
       case PADDING_SAME:
-        val = image_data[y * w + x];
+        val = image_data[fixedy * w + fixedx];
         break;
       case PADDING_ZERO:
         break;
       default:
         // default for padding same
-        val = image_data[y * w + x];
+        val = image_data[fixedy * w + fixedx];
         break;
     }
   }
