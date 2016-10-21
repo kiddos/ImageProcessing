@@ -3,6 +3,8 @@
 #include <limits>
 #include <algorithm>
 
+#include <iostream>
+
 #include "image_processing.h"
 #include "ip/util/math_function.h"
 
@@ -11,15 +13,16 @@ namespace colorspace {
 
 void RGB2Gray(const int w, const int h,
               const uint8_t* const image_data,
-              const float* weights,
+              const double* weights,
               uint8_t* const output) {
   for (int i = 0 ; i < h ; ++i) {
     for (int j = 0 ; j < w ; ++j) {
       double val = 0;
       for (int k = 0 ; k < 3 ; ++k) {
-        val += weights[k] * image_data[i * w * 3 + j * 3 + k];
+        val += weights[k]
+            * static_cast<double>(image_data[i * w * 3 + j * 3 + k]);
       }
-      output[i * w + j] = ip::math::clamp<uint8_t>(val);;
+      output[i * w + j] = ip::math::clamp<uint8_t>(val);
     }
   }
 }
@@ -29,6 +32,10 @@ void Histogram(const int w, const int h, const int d,
                const int bin_size, int* const histogram_bin) {
   const int maxval = 256;
   assert(bin_size <= maxval);
+
+  // zero the bin
+  for (int i = 0 ; i < bin_size ; ++i) histogram_bin[i] = 0;
+  // count the bins
   const int range = maxval / bin_size;
   for (int i = 0 ; i < h ; ++i) {
     for (int j = 0 ; j < w ; ++j) {
@@ -79,7 +86,7 @@ void ConvertTo(colorspace_convert convert,
 
 void ip_rgb_to_gray(const int w, const int h,
                     const uint8_t* const image_data,
-                    const float* weights,
+                    const double* weights,
                     uint8_t* const output) {
   ip::colorspace::RGB2Gray(w, h, image_data, weights, output);
 }
