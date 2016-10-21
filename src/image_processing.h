@@ -11,7 +11,7 @@ extern "C" {
 // compute rgb to gray
 void ip_rgb_to_gray(const int w, const int h,
                     const uint8_t* const image_data,
-                    const float* weights,
+                    const double* weights,
                     uint8_t* const output);
 // compute image histogram
 void ip_histogram(const int w, const int h, const int d,
@@ -48,16 +48,63 @@ extern colorspace_convert rgb_to_ycbcr709;
 enum PADDING {
   PADDING_SAME, PADDING_ZERO
 };
+typedef double (*LBPFeatureType) (const int, const int, const int, const int,
+                                  const enum PADDING, const int, const int,
+                                  const uint8_t* const);
+extern LBPFeatureType lbp;
+extern LBPFeatureType tlbp;
+extern LBPFeatureType clbp;
+extern LBPFeatureType cslbp;
+extern LBPFeatureType tplbp;
 // lbp (local binary pattern)
-void ip_lbp(const enum PADDING padding,
+void ip_lbp(LBPFeatureType feature,
+            const enum PADDING padding,
             const int kernel_size, const double start,
             const int w, const int h, const uint8_t* image_data,
             uint8_t* const output);
-// tlbp (threshold local binary pattern)
-void ip_tlbp(const enum PADDING padding,
-             const int kernel_size, const double start,
-             const int w, const int h, const uint8_t* image_data,
-             uint8_t* const output);
+typedef double (*LTPFeatureType) (const int, const int, const double,
+                                  const int, const int, const PADDING,
+                                  const int, const int,
+                                  const uint8_t* const);
+extern LTPFeatureType ltp;
+extern LTPFeatureType csltp;
+extern LTPFeatureType tpltp;
+// ltp (local ternary pattern)
+void ip_ltp(LTPFeatureType feature,
+            const enum PADDING padding,
+            const int kernel_size, const double start, const double threshold,
+            const int w, const int h, const uint8_t* const image_data,
+            uint8_t* const output);
+// lzp (local zigzag pattern)
+typedef double (*LZPFeatureType) (const int* const, const int,
+                                  const int, const int, const PADDING,
+                                  const int, const int,
+                                  const uint8_t* const);
+void ip_lzp(LZPFeatureType feature,
+            const int* const order, const int order_size,
+            const enum PADDING padding,
+            const int w, const int h, const uint8_t* const image_data,
+            uint8_t* const output);
+extern LZPFeatureType lzp;
+extern LZPFeatureType tplzp;
+// ldp (local direction pattern)
+typedef struct {
+  double* dir;
+  int w;
+  int h;
+} LDPDirection;
+void ip_ldp(LDPDirection direction,
+            const enum PADDING padding,
+            const int w, const int h, const uint8_t* const image_data,
+            uint8_t* const output);
+extern LDPDirection ldp_east;
+extern LDPDirection ldp_north_east;
+extern LDPDirection ldp_north;
+extern LDPDirection ldp_north_west;
+extern LDPDirection ldp_west;
+extern LDPDirection ldp_south_west;
+extern LDPDirection ldp_south;
+extern LDPDirection ldp_south_east;
 // edge detection
 // sobel derivative
 void ip_sobel(const int kernel_size,
