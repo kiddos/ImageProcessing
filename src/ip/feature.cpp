@@ -3,6 +3,8 @@
 #include <limits>
 #include <algorithm>
 
+#include <omp.h>
+
 #include "image_processing.h"
 #include "ip/util/math_function.h"
 
@@ -201,6 +203,7 @@ void ComputeLBP(LBPFeatureType feature,
                 const int kernel_size, const double start,
                 const int w, const int h, const uint8_t* image_data,
                 uint8_t* const output) {
+
   for (int i = 0 ; i < h ; ++i) {
     for (int j = 0 ; j < w ; ++j) {
       const double feature_val = feature(kernel_size, start, j, i,
@@ -307,12 +310,13 @@ void ComputeLTP(LTPFeatureType feature,
                 const int kernel_size, const double start,
                 const double threshold,
                 const int w, const int h, const uint8_t* image_data,
-                uint8_t* const output) {
+                double* const output) {
+#pragma omp parallel for
   for (int i = 0 ; i < h ; ++i) {
     for (int j = 0 ; j < w ; ++j) {
       const double feature_val = feature(kernel_size, start, threshold,
                                          j, i, padding, w, h, image_data);
-      output[i * w + j] = ip::math::clamp<uint8_t>(feature_val);
+      output[i * w + j] = ip::math::clamp<double>(feature_val);
     }
   }
 }
@@ -503,6 +507,10 @@ LDPDirection ldp_south_east = LDPSouthEast();
 } /* end of feature namespace */
 } /* end of ip namespace */
 
+LTPFeatureType ltp = ip::feature::LTP;
+LTPFeatureType csltp = ip::feature::CSLTP;
+LTPFeatureType tpltp = ip::feature::TPCSLTP<1, 3, 8>;
+
 void ip_lbp(LBPFeatureType feature,
             const enum PADDING padding,
             const int kernel_size, const double start,
@@ -516,7 +524,7 @@ void ip_ltp(LTPFeatureType feature,
             const enum PADDING padding,
             const int kernel_size, const double start, const double threshold,
             const int w, const int h, const uint8_t* const image_data,
-            uint8_t* const output) {
+            double* const output) {
   ip::feature::ComputeLTP(feature, padding, kernel_size, start, threshold,
                           w, h, image_data, output);
 }
