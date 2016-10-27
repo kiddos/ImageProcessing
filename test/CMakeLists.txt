@@ -22,3 +22,6 @@ if (Boost_FOUND AND OpenCV_FOUND)
   add_test(test_util ./test_util)
   add_test(test_colorspace ./test_colorspace)
 endif ()
+
+find_package(OpenMP)
+target_compile_options(ImageProcessing PRIVATE -DUSE_OPENMP -fopenmp)
