@@ -74,7 +74,7 @@ void ip_ltp(LTPFeatureType feature,
             const enum PADDING padding,
             const int kernel_size, const double start, const double threshold,
             const int w, const int h, const uint8_t* const image_data,
-            uint8_t* const output);
+            double* const output);
 // lzp (local zigzag pattern)
 typedef double (*LZPFeatureType) (const int* const, const int,
                                   const int, const int, const PADDING,
