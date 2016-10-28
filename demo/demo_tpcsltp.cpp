@@ -17,7 +17,7 @@ void Display(const uint8_t* const image_data,
              const double threshold,
              bool output_csv, const string output_path) {
   double* output_feature = new double[w * h];
-  ip_ltp(tpltp, PADDING_SAME, kernel_size, start, threshold,
+  ip_ltp(tpcsltp, PADDING_SAME, kernel_size, start, threshold,
          w, h, image_data, output_feature);
   uint8_t* output_image = new uint8_t[w * h];
   ip::demo::NormalizeForDisplay(output_feature, w * h, output_image);

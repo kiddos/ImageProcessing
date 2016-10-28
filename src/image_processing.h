@@ -68,7 +68,7 @@ typedef double (*LTPFeatureType) (const int, const int, const double,
                                   const uint8_t* const);
 extern LTPFeatureType ltp;
 extern LTPFeatureType csltp;
-extern LTPFeatureType tpltp;
+extern LTPFeatureType tpcsltp;
 // ltp (local ternary pattern)
 void ip_ltp(LTPFeatureType feature,
             const enum PADDING padding,

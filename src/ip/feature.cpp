@@ -509,7 +509,7 @@ LDPDirection ldp_south_east = LDPSouthEast();
 
 LTPFeatureType ltp = ip::feature::LTP;
 LTPFeatureType csltp = ip::feature::CSLTP;
-LTPFeatureType tpltp = ip::feature::TPCSLTP<1, 3, 8>;
+LTPFeatureType tpcsltp = ip::feature::TPCSLTP<3, 1, 8>;
 
 void ip_lbp(LBPFeatureType feature,
             const enum PADDING padding,

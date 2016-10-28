@@ -6,11 +6,31 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <chrono>
 
 #include "ip/util/math_function.h"
 
 namespace ip {
 namespace demo {
+
+template <typename DType>
+void ChooseRandomPoint(const int w, const int h, const DType* const image_data,
+                       const int ow, const int oh, DType* const output,
+                       int* const oi, int* const oj) {
+  auto seed = std::chrono::system_clock::now().time_since_epoch().count();
+  std::default_random_engine generator(seed);
+  std::uniform_int_distribution<int> ri(0, w - ow);
+  std::uniform_int_distribution<int> rj(0, h - oh);
+
+  *oi = ri(generator);
+  *oj = rj(generator);
+
+  for (int i = 0 ; i < oh ; ++i) {
+    for (int j = 0 ; j < ow ; ++j) {
+      output[i * ow + j] = image_data[(*oi + i) * w + *oj + j];
+    }
+  }
+}
 
 template <typename DType>
 void ExtractCVMat(const cv::Mat& image, DType** data,
