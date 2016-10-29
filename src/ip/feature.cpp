@@ -14,7 +14,7 @@ namespace feature {
 template <typename DType>
 DType GetValidNeighbour(const PADDING padding,
                         const int w, const int h,
-                        const uint8_t* const image_data,
+                        const DType* const image_data,
                         const int x, const int y) {
   DType val = 0;
   if (x >= 0 && x < w && y >= 0 && y < h) {
@@ -62,7 +62,7 @@ double LBP(const int kernel_size, const int start,
     GetNeighbour(range, k * delta + start, cx, cy, &newx, &newy);
 
     const double neighbour_val =
-        GetValidNeighbour<double>(padding, w, h, image_data, newx, newy);
+        GetValidNeighbour(padding, w, h, image_data, newx, newy);
     if (image_data[cy * w + cx] < neighbour_val) {
       val += std::pow(2, k);
     }
@@ -89,7 +89,7 @@ double TLBP(const int kernel_size, const int start,
     GetNeighbour(range, k * delta + start, cx, cy, &newx, &newy);
 
     const double neighbour_val =
-        GetValidNeighbour<double>(padding, w, h, image_data, newx, newy);
+        GetValidNeighbour(padding, w, h, image_data, newx, newy);
     if (image_data[cy * w + cx] < neighbour_val) {
       cp += neighbour_val;
       ++ cp_count;
@@ -128,7 +128,7 @@ double CLBP(const int kernel_size, const int start,
     GetNeighbour(range, k * delta + start, cx, cy, &newx, &newy);
 
     const double neighbour_val =
-        GetValidNeighbour<double>(padding, w, h, image_data, newx, newy);
+        GetValidNeighbour(padding, w, h, image_data, newx, newy);
     if (image_data[cy * w + cx] < neighbour_val) {
       val += std::pow(2, 2 * k);
     }
@@ -158,9 +158,9 @@ double CSLBP(const int kernel_size, const int start,
     GetNeighbour(range, (k + range * 4) * delta + start, cx, cy, &newx2, &newy2);
 
     const double neighbour_val1 =
-        GetValidNeighbour<double>(padding, w, h, image_data, newx1, newy1);
+        GetValidNeighbour(padding, w, h, image_data, newx1, newy1);
     const double neighbour_val2 =
-        GetValidNeighbour<double>(padding, w, h, image_data, newx2, newy2);
+        GetValidNeighbour(padding, w, h, image_data, newx2, newy2);
     if (neighbour_val1 >= neighbour_val2) {
       val += std::pow(2, k);
     }
@@ -168,30 +168,29 @@ double CSLBP(const int kernel_size, const int start,
   return val;
 }
 
-template <int A, int R, int S>
-double TPLBP(const int kernel_size, const int start,
+template <typename INType>
+double TPLBP(const int threshold, const double start,
              const int cx, const int cy,
              const PADDING padding,
              const int w, const int h,
-             const uint8_t* const image_data) {
-  const double pi = ip::math::pi();
-  const int range = R;
-  const double delta = 2.0 * pi / S;
+             const int alpha, const int range, const int s,
+             const INType* const data) {
+  const double delta = 2.0 * M_PI / s;
 
   double val = 0;
-  for (int k = 0 ; k < S ; ++k) {
+  for (int k = 0 ; k < s ; ++k) {
     int newx1 = 0;
     int newy1 = 0;
     int newx2 = 0;
     int newy2 = 0;
     GetNeighbour(range, k * delta + start, cx, cy, &newx1, &newy1);
-    GetNeighbour(range, (k + A) * delta + start, cx, cy, &newx2, &newy2);
+    GetNeighbour(range, (k + alpha) * delta + start, cx, cy, &newx2, &newy2);
 
-    const double patch1 = LBP(kernel_size, start, newx1, newy1,
-                              padding, w, h, image_data);
-    const double patch2 = LBP(kernel_size, start, newx2, newy2,
-                              padding, w, h, image_data);
-    if (patch1 >= patch2) {
+    const double patch1 =
+        GetValidNeighbour(padding, w, h, data, newx1, newy1);
+    const double patch2 =
+        GetValidNeighbour(padding, w, h, data, newx2, newy2);
+    if (patch1 >= patch2 + threshold) {
       val += std::pow(2, k);
     }
   }
@@ -214,10 +213,11 @@ void ComputeLBP(LBPFeatureType feature,
 }
 
 
+template <typename INType>
 double LTP(const int kernel_size, const int start, const double threshold,
            const int cx, const int cy, const PADDING padding,
            const int w, const int h,
-           const uint8_t* const image_data) {
+           const INType* const image_data) {
   const double pi = ip::math::pi();
   const int range = kernel_size / 2;
   const double delta = 2.0 * pi / (range * 8);
@@ -229,7 +229,7 @@ double LTP(const int kernel_size, const int start, const double threshold,
     GetNeighbour(range, k * delta + start, cx, cy, &newx, &newy);
 
     const double neighbour_val =
-        GetValidNeighbour<double>(padding, w, h, image_data, newx, newy);
+        GetValidNeighbour(padding, w, h, image_data, newx, newy);
     const double current_val = image_data[cy * w + cx];
     if (neighbour_val >= current_val + threshold) {
       val += 2 * std::pow(3, k);
@@ -241,10 +241,11 @@ double LTP(const int kernel_size, const int start, const double threshold,
   return val;
 }
 
+template <typename INType>
 double CSLTP(const int kernel_size, const int start, const double threshold,
              const int cx, const int cy, const PADDING padding,
              const int w, const int h,
-             const uint8_t* const image_data) {
+             const INType* const image_data) {
   const double pi = ip::math::pi();
   const int range = kernel_size / 2;
   const double delta = 2.0 * pi / (range * 8);
@@ -260,9 +261,9 @@ double CSLTP(const int kernel_size, const int start, const double threshold,
                  cx, cy, &newx2, &newy2);
 
     const double neighbour_val1 =
-        GetValidNeighbour<double>(padding, w, h, image_data, newx1, newy1);
+        GetValidNeighbour(padding, w, h, image_data, newx1, newy1);
     const double neighbour_val2 =
-        GetValidNeighbour<double>(padding, w, h, image_data, newx2, newy2);
+        GetValidNeighbour(padding, w, h, image_data, newx2, newy2);
     if (neighbour_val1 >= neighbour_val2 + threshold) {
       val += 2 * std::pow(3, k);
     } else if (neighbour_val1 >= neighbour_val2 - threshold &&
@@ -273,28 +274,28 @@ double CSLTP(const int kernel_size, const int start, const double threshold,
   return val;
 }
 
-template <int A, int R, int S>
-double TPCSLTP(const int kernel_size, const int start, const double threshold,
-               const int cx, const int cy, const PADDING padding,
-               const int w, const int h,
-               const uint8_t* const image_data) {
-  const double pi = ip::math::pi();
-  const int range = R;
-  const double delta = 2.0 * pi / S;
+template <typename INType>
+double TPLTP(const int threshold, const double start,
+             const int cx, const int cy,
+             const PADDING padding,
+             const int w, const int h,
+             const int alpha, const int range, const int s,
+             const INType* const data) {
+  const double delta = 2.0 * M_PI / s;
 
   double val = 0;
-  for (int k = 0 ; k < S ; ++k) {
+  for (int k = 0 ; k < s ; ++k) {
     int newx1 = 0;
     int newy1 = 0;
     int newx2 = 0;
     int newy2 = 0;
     GetNeighbour(range, k * delta + start, cx, cy, &newx1, &newy1);
-    GetNeighbour(range, (k + A) * delta + start, cx, cy, &newx2, &newy2);
+    GetNeighbour(range, (k + alpha) * delta + start, cx, cy, &newx2, &newy2);
 
-    const double patch1 = CSLTP(kernel_size, start, threshold, newx1, newy1,
-                                padding, w, h, image_data);
-    const double patch2 = CSLTP(kernel_size, start, threshold, newx2, newy2,
-                                padding, w, h, image_data);
+    const double patch1 =
+        GetValidNeighbour(padding, w, h, data, newx1, newy1);
+    const double patch2 =
+        GetValidNeighbour(padding, w, h, data, newx2, newy2);
     if (patch1 >= patch2 + threshold) {
       val += 2 * std::pow(3, k);
     } else if (patch1 >= patch2 - threshold &&
@@ -304,6 +305,36 @@ double TPCSLTP(const int kernel_size, const int start, const double threshold,
   }
   return val;
 }
+
+void ComputeThreePatchLTP(LTPFeatureType feature,
+                          const enum PADDING padding,
+                          const int kernel_size, const double start,
+                          const double threshold, const int alpha,
+                          const int radius, const int surround,
+                          const int w, const int h,
+                          const uint8_t* const image_data,
+                          double* const output) {
+  double* preprocessed = new double[w * h];
+#pragma omp parallel for
+  for (int i = 0 ; i < h ; ++i) {
+    for (int j = 0 ; j < w ; ++j) {
+      preprocessed[i * w + j] = feature(kernel_size, start, threshold,
+                                         j, i, padding, w, h, image_data);
+    }
+  }
+#pragma omp parallel for
+  for (int i = 0 ; i < h ; ++i) {
+    for (int j = 0 ; j < w ; ++j) {
+      const double feature_val = TPLTP(threshold, start, j, i,
+                                       padding, w, h,
+                                       alpha, radius, surround,
+                                       preprocessed);
+      output[i * w + j] = feature_val;
+    }
+  }
+  delete[] preprocessed;
+}
+
 
 void ComputeLTP(LTPFeatureType feature,
                 const PADDING padding,
@@ -331,7 +362,7 @@ double LZP(const int* const order, const int order_size,
     const int newy = cy + order[k * 2 + 1];
 
     const double neighbour_val =
-        GetValidNeighbour<double>(padding, w, h, image_data, newx, newy);
+        GetValidNeighbour(padding, w, h, image_data, newx, newy);
     if (neighbour_val > image_data[cy * w + cx]) {
       val += std::pow(2, k);
     }
@@ -353,9 +384,9 @@ double TPLZP(const int* const order, const int order_size,
     const int newy2 = cy + order[(k * 2 + 1 + shift) % order_size];
 
     const double neighbour_val1 =
-        GetValidNeighbour<double>(padding, w, h, image_data, newx1, newy1);
+        GetValidNeighbour(padding, w, h, image_data, newx1, newy1);
     const double neighbour_val2 =
-        GetValidNeighbour<double>(padding, w, h, image_data, newx2, newy2);
+        GetValidNeighbour(padding, w, h, image_data, newx2, newy2);
     if (neighbour_val1 > neighbour_val2) {
       val += std::pow(2, k);
     }
@@ -486,7 +517,7 @@ void ComputeLDP(LDPDirection direction,
           const int newy = i + k;
 
           const double neighbour_val =
-              GetValidNeighbour<double>(padding, w, h, image_data, newx, newy);
+              GetValidNeighbour(padding, w, h, image_data, newx, newy);
           val += direction.dir[k * direction.w + l] * neighbour_val;
         }
       }
@@ -495,21 +526,12 @@ void ComputeLDP(LDPDirection direction,
   }
 }
 
-LDPDirection ldp_east = LDPEast();
-LDPDirection ldp_north_east = LDPNorthEast();
-LDPDirection ldp_north = LDPNorth();
-LDPDirection ldp_north_west = LDPNorthWest();
-LDPDirection ldp_west = LDPWest();
-LDPDirection ldp_south_west = LDPSouthWest();
-LDPDirection ldp_south = LDPSouth();
-LDPDirection ldp_south_east = LDPSouthEast();
 
 } /* end of feature namespace */
 } /* end of ip namespace */
 
-LTPFeatureType ltp = ip::feature::LTP;
-LTPFeatureType csltp = ip::feature::CSLTP;
-LTPFeatureType tpcsltp = ip::feature::TPCSLTP<3, 1, 8>;
+LTPFeatureType ltp = ip::feature::LTP<uint8_t>;
+LTPFeatureType csltp = ip::feature::CSLTP<uint8_t>;
 
 void ip_lbp(LBPFeatureType feature,
             const enum PADDING padding,
@@ -527,6 +549,19 @@ void ip_ltp(LTPFeatureType feature,
             double* const output) {
   ip::feature::ComputeLTP(feature, padding, kernel_size, start, threshold,
                           w, h, image_data, output);
+}
+
+void ip_three_patch_ltp(LTPFeatureType feature,
+                        const enum PADDING padding,
+                        const int kernel_size, const double start,
+                        const int threshold,
+                        const int alpha, const int range, const int s,
+                        const int w, const int h,
+                        const uint8_t* const image_data,
+                        double* const output) {
+  ip::feature::ComputeThreePatchLTP(feature, padding, kernel_size,
+                                    start, threshold, alpha, range, s,
+                                    w, h, image_data, output);
 }
 
 void ip_lzp(LZPFeatureType feature,
