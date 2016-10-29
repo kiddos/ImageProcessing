@@ -75,9 +75,12 @@ void DisplayTPCSLTP(const uint8_t* const parts, const int kernel_size,
     }
     if (i != s -1) cout << " + ";
   }
-  double final_result = tpcsltp(kernel_size, 0, threshold,
-                                2, 2, PADDING_ZERO, 5, 5, parts);
-  cout << " = " << final_result << '\n';
+  // double final_result = tpcsltp(kernel_size, 0, threshold,
+  //                               2, 2, PADDING_ZERO, 5, 5, parts);
+  double* output_feature = new double[5 * 5];
+  ip_three_patch_ltp(csltp, PADDING_SAME, kernel_size, 0, threshold,
+                     3, 1, 8, 5, 5, parts, output_feature);
+  cout << " = " << output_feature[2 * 5 + 2] << '\n';
 }
 
 int main(int argc, char** argv) {
