@@ -55,13 +55,14 @@ extern LBPFeatureType lbp;
 extern LBPFeatureType tlbp;
 extern LBPFeatureType clbp;
 extern LBPFeatureType cslbp;
-extern LBPFeatureType tplbp;
 // lbp (local binary pattern)
 void ip_lbp(LBPFeatureType feature,
             const enum PADDING padding,
             const int kernel_size, const double start,
-            const int w, const int h, const uint8_t* image_data,
+            const int w, const int h,
+            const uint8_t* const image_data,
             uint8_t* const output);
+// ltp (local ternary pattern)
 typedef double (*LTPFeatureType) (const int, const int, const double,
                                   const int, const int, const PADDING,
                                   const int, const int,
@@ -75,6 +76,14 @@ void ip_ltp(LTPFeatureType feature,
             const int kernel_size, const double start, const double threshold,
             const int w, const int h, const uint8_t* const image_data,
             double* const output);
+void ip_three_patch_ltp(LTPFeatureType feature,
+                        const enum PADDING padding,
+                        const int kernel_size, const double start,
+                        const int threshold,
+                        const int alpha, const int range, const int s,
+                        const int w, const int h,
+                        const uint8_t* const image_data,
+                        double* const output);
 // lzp (local zigzag pattern)
 typedef double (*LZPFeatureType) (const int* const, const int,
                                   const int, const int, const PADDING,
