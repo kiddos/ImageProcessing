@@ -1,0 +1,38 @@
+doctype html
+html
+  head
+    title= title
+    link(rel="stylesheet", href="/lib/codemirror.css")
+    link(rel="stylesheet", href="/stylesheets/image_processing.css")
+    link(rel="shortcut icon", type="image/ico", href="/app.ico")
+    script(src="/jquery.min.js")
+    script(src="/lib/codemirror.js")
+    script(src="/mode/javascript/javascript.js")
+  body
+    .container
+      .head
+        h2.header= title
+      .main-content
+        nav.navigation
+          a(href="/image_processing/rgb2color") RGB to Color Space
+          a(href="/image_processing/lbp") Local Binary Pattern (LBP)
+          a(href="/image_processing/ltp") Local Ternary Pattern (LTP)
+          a(href="/image_processing/lzp") Local Zigzag Pattern (LZP)
+          a(href="/image_processing/ldp") Local Direction Pattern (LDP)
+          a(href="/image_processing/sobel") Sobel Derivative
+          a(href="/image_processing/canny") Canny Edge Detection
+          a(href="/image_processing/laplacian") Laplacian
+
+        canvas#input.display-canvas
+          | Your Brower Does not Support Canvas Tag
+        canvas#output.display-canvas
+          | Your Brower Does not Support Canvas Tag
+        .editor
+          h3 Editor
+          select#spinner.spinner
+          textarea#code
+        hr
+        input#upload(type="file", value="Upload")
+        input#process(type="button", value="Process")
+
+        block script

@@ -1,0 +1,73 @@
+body, html {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: #F0F0F0; }
+  body .container, html .container {
+    width: 100%;
+    padding: 20px;
+    box-sizing: border-box; }
+    body .container .head h2.header, html .container .head h2.header {
+      box-sizing: border-box;
+      padding: 20px;
+      margin: 0; }
+    body .container .main-content nav.navigation a, html .container .main-content nav.navigation a {
+      background-color: #F2F2F2;
+      display: inline-block;
+      font-size: 0.6em;
+      margin: 1px;
+      text-decoration: none;
+      padding: 3px 6px 3px 6px;
+      border-radius: 5px;
+      box-sizing: border-box;
+      box-shadow: 0px 6px 3px #888888;
+      transition: .2s ease-in-out;
+      color: #424242; }
+    body .container .main-content nav.navigation a:hover, html .container .main-content nav.navigation a:hover {
+      background-color: #BDBDBD; }
+    body .container .main-content nav.navigation a:active, html .container .main-content nav.navigation a:active {
+      transform: translate(0, 3px); }
+    body .container .main-content nav.navigation a.current, html .container .main-content nav.navigation a.current {
+      background-color: #B0B0B0;
+      transform: translate(0, 2px); }
+    body .container .main-content canvas.display-canvas, html .container .main-content canvas.display-canvas {
+      width: 30%;
+      border: 2px solid black;
+      margin: 5px; }
+    body .container .main-content .editor, html .container .main-content .editor {
+      display: inline-block;
+      width: 30%; }
+      body .container .main-content .editor h3, html .container .main-content .editor h3 {
+        margin: 5px; }
+      body .container .main-content .editor select, html .container .main-content .editor select {
+        margin-left: 10px;
+        margin-bottom: 5px;
+        font-size: 0.66em;
+        border-radius: 2px;
+        background-color: #F2F2F2;
+        padding: 3px 30px 3px 6px;
+        border: 1px solid black; }
+      body .container .main-content .editor div.CodeMirror, html .container .main-content .editor div.CodeMirror {
+        width: 100%;
+        height: 360px;
+        padding: 5px;
+        font-size: 0.56em;
+        border: 3px solid lightgray; }
+    body .container .main-content input[type="button"]#process, html .container .main-content input[type="button"]#process {
+      color: #424242;
+      background-color: #F2F2F2;
+      border: 2px solid black;
+      border-radius: 10px;
+      padding: 10px;
+      font-size: 1em;
+      transition: .6s ease-in-out;
+      box-shadow: 0px 6px 3px #888888; }
+    body .container .main-content input[type="button"]#process:hover, html .container .main-content input[type="button"]#process:hover {
+      background-color: #D8D8D8;
+      cursor: pointer; }
+    body .container .main-content input[type="button"]#process:active, html .container .main-content input[type="button"]#process:active {
+      transform: translate(0, 2px);
+      background-color: #D8D8D8; }
+
+/*# sourceMappingURL=image_processing.css.map */
