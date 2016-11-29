@@ -25,7 +25,6 @@ var getNeighbor = function(x, y, step, w, h, imagePixels) {
 };
 
 var kernel = function(x, y, step, w, h, imagePixels) {
-  var val = imagePixels.data[y * step + x * 4];
   var newX = 0, newY = 0, nval = 0, index = 0;
   var newX2 = 0, newY2 = 0, nval2 = 0, index2 = 0;
   var values = [];
