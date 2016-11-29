@@ -4,6 +4,7 @@ var start = Math.PI;
 var delta = 8;
 var theta = Math.PI * 2 / delta;
 var padding = 'same';
+var threshold = 10;
 
 var kernel = function(x, y, step, w, h, imagePixels) {
   var result = 0;
@@ -30,9 +31,14 @@ var kernel = function(x, y, step, w, h, imagePixels) {
       }
     }
 
-    if (nval >= val) {
-      result += (1 << i);
+    if (nval >= val + threshold) {
+      result += 2 * Math.pow(3, i);
+    } else if (nval >= val - threshold) {
+      result += Math.pow(3, i);
     }
   }
+
+  result = result / 9840 * 255;
+  result = Math.min(Math.max(result, 0), 255);
   return result;
 };

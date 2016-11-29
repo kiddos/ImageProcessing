@@ -5,6 +5,7 @@ var start = Math.PI;
 var delta = 8;
 var theta = Math.PI * 2 / delta;
 var padding = 'same';
+var threshold = 10;
 
 var getNeighbor = function(x, y, step, w, h, imagePixels) {
   var value = 0;
@@ -47,8 +48,10 @@ var kernel = function(x, y, step, w, h, imagePixels) {
         Math.sin(angle2));
 
       var neighborValue = getNeighbor(newX2, newY2, step, w, h, imagePixels);
-      if (neighborValue >= thisValue) {
-        value += (1 << i);
+      if (nval >= thisValue + threshold) {
+        value += 2 * Math.pow(3, i);
+      } else if (nval >= thisValue - threshold) {
+        value += Math.pow(3, i);
       }
     }
     values.push(value);
@@ -58,10 +61,14 @@ var kernel = function(x, y, step, w, h, imagePixels) {
   for (i = 0 ; i < delta ; ++i) {
     var i0 = i;
     var i1 = (i + alpha) % delta;
-    if (values[i0] >= values[i1]) {
-      result += (1 << i);
+    if (values[i0] >= values[i1] + threshold) {
+      result += 2 * Math.pow(3, i);
+    } else if (values[i0] >= values[i1] - threshold) {
+      result += Math.pow(3, i);
     }
   }
 
+  result = result / 9840 * 255;
+  result = Math.min(Math.max(result, 0), 255);
   return result;
 };

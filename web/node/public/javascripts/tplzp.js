@@ -1,10 +1,12 @@
 var kernelSize = 3;
 var range = parseInt(kernelSize / 2);
-var alpha = 3;
 var start = Math.PI;
-var delta = 8;
-var theta = Math.PI * 2 / delta;
+var alpha = 3;
 var padding = 'same';
+var zigzag = [
+  [-1, -1], [0, -1], [1, -1], [-1, 0],
+  [-1, 1], [0, 1], [1, 1], [1, 0]
+];
 
 var getNeighbor = function(x, y, step, w, h, imagePixels) {
   var value = 0;
@@ -29,22 +31,16 @@ var kernel = function(x, y, step, w, h, imagePixels) {
   var newX2 = 0, newY2 = 0, nval2 = 0, index2 = 0;
   var values = [];
 
-  for (var i = 0 ; i < delta ; ++i) {
-    var angle = i * theta + start;
-    newX = range * Math.round(x +
-      Math.cos(angle));
-    newY = range * Math.round(y +
-      Math.sin(angle));
+  for (var i = 0 ; i < zigzag.length ; ++i) {
+    newX = x + zigzag[i][0];
+    newY = y + zigzag[i][1];
 
     var thisValue = getNeighbor(newX, newY, step, w, h, imagePixels);
     var value = 0;
 
-    for (var j = 0 ; j < delta ; ++j) {
-      var angle2 = j * theta + start;
-      newX2 = range * Math.round(newX +
-        Math.cos(angle2));
-      newY2 = range * Math.round(newY +
-        Math.sin(angle2));
+    for (var j = 0 ; j < zigzag.length ; ++j) {
+      newX2 = newX + zigzag[j][0];
+      newY2 = newY + zigzag[j][1];
 
       var neighborValue = getNeighbor(newX2, newY2, step, w, h, imagePixels);
       if (neighborValue >= thisValue) {
@@ -55,13 +51,12 @@ var kernel = function(x, y, step, w, h, imagePixels) {
   }
 
   var result = 0;
-  for (i = 0 ; i < delta ; ++i) {
+  for (i = 0 ; i < zigzag.length ; ++i) {
     var i0 = i;
-    var i1 = (i + alpha) % delta;
+    var i1 = (i + alpha) % zigzag.length;
     if (values[i0] >= values[i1]) {
       result += (1 << i);
     }
   }
-
   return result;
 };
