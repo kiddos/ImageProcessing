@@ -1,4 +1,5 @@
 var kernelSize = 3;
+var range = parseInt(kernelSize / 2);
 var start = Math.PI;
 var delta = 8;
 var theta = Math.PI * 2 / delta;
@@ -10,10 +11,11 @@ var kernel = function(x, y, step, w, h,
   var val =
       imagePixels.data[y * step + x * 4];
   for (var i = 0 ; i < delta ; ++i) {
-    var newX = Math.round(x +
-      Math.cos(i * theta));
-    var newY = Math.round(y +
-      Math.sin(i * theta));
+    var angle = i * theta + start;
+    var newX = range * Math.round(x +
+      Math.cos(angle));
+    var newY = range * Math.round(y +
+      Math.sin(angle));
 
     var nval = 0;
     if (padding === 'same') {
@@ -24,8 +26,8 @@ var kernel = function(x, y, step, w, h,
     } else if (padding == 'zero') {
       if (newX >= 0 && newX < w &&
           newY >= 0 && newY < h) {
-        nval = imagePixels.data[newY * step +
-          newX * 4];
+        var index = newY * step + newX * 4;
+        nval = imagePixels.data[index];
       }
     }
 
