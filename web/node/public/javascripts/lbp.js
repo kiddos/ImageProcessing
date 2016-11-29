@@ -7,8 +7,8 @@ var padding = 'same';
 
 var kernel = function(x, y, step, w, h, imagePixels) {
   var result = 0;
-  var val =
-      imagePixels.data[y * step + x * 4];
+  var index = y * step + x * 4;
+  var val = imagePixels.data[index];
   for (var i = 0 ; i < delta ; ++i) {
     var angle = i * theta + start;
     var newX = range * Math.round(x +
@@ -20,12 +20,12 @@ var kernel = function(x, y, step, w, h, imagePixels) {
     if (padding === 'same') {
       newX = Math.min(Math.max(0, newX), w-1);
       newY = Math.min(Math.max(0, newY), h-1);
-      nval = imagePixels.data[newY * step +
-        newX * 4];
+      index = newY * step + newX * 4;
+      nval = imagePixels.data[index];
     } else if (padding == 'zero') {
       if (newX >= 0 && newX < w &&
           newY >= 0 && newY < h) {
-        var index = newY * step + newX * 4;
+        index = newY * step + newX * 4;
         nval = imagePixels.data[index];
       }
     }
