@@ -8,7 +8,7 @@ $(document).ready(function() {
   // set spinner
   $('#spinner').html(
     '<option value="/javascripts/rgb2gray.js">RGB to Gray</option>' +
-    '<option value="/javascripts/rgb2gray.js">RGB to HUV</option>' +
+    '<option value="/javascripts/rgb2hsv.js">RGB to HSV</option>' +
     '<option value="/javascripts/rgb2gray.js">RGB to YCbCr</option>'
   );
   // setup editor
