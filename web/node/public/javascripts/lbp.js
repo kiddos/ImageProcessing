@@ -5,8 +5,7 @@ var delta = 8;
 var theta = Math.PI * 2 / delta;
 var padding = 'same';
 
-var kernel = function(x, y, step, w, h,
-                      imagePixels) {
+var kernel = function(x, y, step, w, h, imagePixels) {
   var result = 0;
   var val =
       imagePixels.data[y * step + x * 4];
