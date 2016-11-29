@@ -2,7 +2,7 @@ $(document).ready(function() {
   // setup canvas
   initCanvas();
   // highlight the navigation
-  $('a[href="/image_processing/lbp"]').addClass('current');
+  $('a[href="/image_processing/ltp"]').addClass('current');
   // set spinner
   $('#spinner').html(
     '<option value="/javascripts/ltp.js">ltp</option>' +
