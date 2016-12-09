@@ -22,7 +22,8 @@ class Demo {
         canny_threshold_low_(canny_threshold),
         canny_threshold_high_(canny_threshold * canny_ratio),
         canny_threshold_ratio_(canny_ratio),
-        canny_sobel_size_(sobel_size) {
+        canny_sobel_size_(sobel_size),
+        laplacian_ksize_(3), laplacian_scale_(1), laplacian_delta_(0) {
     for (int i = 0 ; i < 3 ; ++i) {
       vector<long> bins;
       for (int j = 0 ; j < 256 ; ++j) {
@@ -50,6 +51,16 @@ class Demo {
     demo->canny_sobel_size_ = sobel_size * 2 + 1;
   }
 
+  static void LaplacianKernelSizeChanged(int ksize, void* ptr) {
+    Demo* demo = static_cast<Demo*>(ptr);
+    demo->laplacian_ksize_ = ksize * 2 + 1;
+  }
+
+  static void LaplacianScaleChanged(int scale, void* ptr) {
+    Demo* demo = static_cast<Demo*>(ptr);
+    demo->laplacian_scale_ = scale + 1;
+  }
+
   bool CheckCamera() {
     if (!camera_.isOpened()) {
       cout << "fail to open camera\n";
@@ -62,19 +73,33 @@ class Demo {
     cv::namedWindow(ORIGINAL_WINDOW);
     cv::namedWindow(CANNY_WINDOW);
     cv::namedWindow(HISTOGRAM_WINDOW);
-    cv::moveWindow(CANNY_WINDOW, 800, 0);
-    cv::moveWindow(HISTOGRAM_WINDOW, 0, 600);
-
+    cv::namedWindow(LAPLACIAN_WINDOW);
+    cv::moveWindow(CANNY_WINDOW, 640, 0);
+    cv::moveWindow(HISTOGRAM_WINDOW, 0, 480);
+    cv::moveWindow(LAPLACIAN_WINDOW, 1280, 0);
+    // canny parameters
     cv::createTrackbar("Lower Threshold:", CANNY_WINDOW,
                        &canny_threshold_low_, 100,
                        CannyThresholdChanged, this);
     cv::createTrackbar("Threshold Ratio:", CANNY_WINDOW,
                        &canny_threshold_ratio_, 100,
                        CannyThresholdRatioChanged, this);
-    int size = 3;
+    int cksize = 3;
     cv::createTrackbar("Sobel Size:", CANNY_WINDOW,
-                       &size, 4,
+                       &cksize, 4,
                        CannySobelSizeChanged, this);
+    // laplacian parameter
+    int lksize = 3;
+    cv::createTrackbar("Kernel Size:", LAPLACIAN_WINDOW,
+                       &lksize, 4,
+                       LaplacianKernelSizeChanged, this);
+
+    int lscale = 3;
+    cv::createTrackbar("Scale:", LAPLACIAN_WINDOW,
+                       &lscale, 6,
+                       LaplacianScaleChanged, this);
+    cv::createTrackbar("Delta:", LAPLACIAN_WINDOW,
+                       &laplacian_delta_, 100, nullptr);
   }
 
   void ClearHistogram() {
@@ -152,9 +177,15 @@ class Demo {
       int max_bin = ComputeHistogram(smoothed_);
       DrawHistogram(histogram_, max_bin);
 
+      cv::cvtColor(image_, gray_, CV_BGR2GRAY);
+      cv::Laplacian(gray_, laplacian_, CV_16S, laplacian_ksize_,
+                    laplacian_scale_, laplacian_delta_, cv::BORDER_DEFAULT);
+      cv::convertScaleAbs(laplacian_, laplacian_abs_);
+
       cv::imshow(ORIGINAL_WINDOW, image_);
       cv::imshow(CANNY_WINDOW, canny_);
       cv::imshow(HISTOGRAM_WINDOW, histogram_);
+      cv::imshow(LAPLACIAN_WINDOW, laplacian_abs_);
       char key = cv::waitKey(10);
       if (key == 'q' || key == 10 || key == 27) {
         break;
@@ -166,11 +197,13 @@ class Demo {
   const string ORIGINAL_WINDOW = "Original Image";
   const string CANNY_WINDOW = "Canny";
   const string HISTOGRAM_WINDOW = "Histogram";
+  const string LAPLACIAN_WINDOW = "Laplacian";
 
   VideoCapture camera_;
-  Mat image_, canny_, smoothed_, histogram_;
+  Mat image_, canny_, smoothed_, gray_, histogram_, laplacian_, laplacian_abs_;
   int canny_threshold_low_, canny_threshold_high_;
   int canny_threshold_ratio_, canny_sobel_size_;
+  int laplacian_ksize_, laplacian_scale_, laplacian_delta_;
   vector<vector<long>> hist_bins_;
 };
 
